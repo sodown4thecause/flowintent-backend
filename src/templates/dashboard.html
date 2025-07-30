@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Platform Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            font-weight: bold;
+            background-color: #f1f3f5;
+        }
+        .workflow-card {
+            transition: transform 0.2s;
+        }
+        .workflow-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .badge-step {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .status-running {
+            color: #0d6efd;
+        }
+        .status-completed {
+            color: #198754;
+        }
+        .status-failed {
+            color: #dc3545;
+        }
+        .search-container {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">Natural Language Workflow Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Workflows</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Templates</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Executions</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Profile</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Search Section -->
+        <div class="search-container">
+            <h4>Find Workflows</h4>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Describe what you need in natural language...">
+                        <button class="btn btn-primary" type="button" id="searchButton">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="data">Data Processing</option>
+                        <option value="automation">Automation</option>
+                        <option value="ai">AI & ML</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="customer-service">Customer Service</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ total_workflows }}</h5>
+                        <p class="card-text">Total Workflows</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ active_workflows }}</h5>
+                        <p class="card-text">Active Workflows</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ executions_today }}</h5>
+                        <p class="card-text">Executions Today</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ success_rate }}%</h5>
+                        <p class="card-text">Success Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Workflows -->
+        <h4 class="mb-3">Recent Workflows</h4>
+        <div class="row">
+            {% for workflow in recent_workflows %}
+            <div class="col-md-6">
+                <div class="card workflow-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>{{ workflow.name }}</span>
+                        <span class="badge bg-{{ workflow.status_color }}">{{ workflow.status }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ workflow.description }}</p>
+                        <div class="mb-3">
+                            {% for step in workflow.steps %}
+                            <span class="badge bg-secondary badge-step">{{ step }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Created: {{ workflow.created_at }}</small>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary">View</button>
+                                <button class="btn btn-sm btn-outline-success">Execute</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Recent Executions -->
+        <h4 class="mb-3 mt-4">Recent Executions</h4>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Workflow</th>
+                        <th>Started</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for execution in recent_executions %}
+                    <tr>
+                        <td>{{ execution.id }}</td>
+                        <td>{{ execution.workflow_name }}</td>
+                        <td>{{ execution.started_at }}</td>
+                        <td>{{ execution.duration }}</td>
+                        <td>
+                            <span class="status-{{ execution.status.lower() }}">
+                                <i class="bi bi-circle-fill"></i> {{ execution.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary">Details</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recommended Templates -->
+        <h4 class="mb-3 mt-4">Recommended Templates</h4>
+        <div class="row">
+            {% for template in recommended_templates %}
+            <div class="col-md-4">
+                <div class="card workflow-card">
+                    <div class="card-header">
+                        {{ template.name }}
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ template.description }}</p>
+                        <div class="mb-3">
+                            <span class="badge bg-info">{{ template.category }}</span>
+                            {% for tag in template.tags %}
+                            <span class="badge bg-light text-dark">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-primary btn-sm">Use Template</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-4 mt-5">
+        <div class="container">
+            <p>Natural Language Workflow Platform &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const query = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            if (query) {
+                // In a real application, this would make an API call
+                alert(`Searching for: ${query} in category: ${category || 'All'}`);
+            }
+        });
+    </script>
+</body>
+</html>

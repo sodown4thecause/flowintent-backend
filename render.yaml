@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: flowintent-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: PYTHONPATH
+        value: /app/src
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: WORKERS
+        value: 1
+      - key: LOG_LEVEL
+        value: info
+      - key: ALLOWED_ORIGINS
+        value: https://flowintent.com,https://www.flowintent.com
+      # Add your secrets in Render dashboard:
+      # OPENAI_API_KEY, SECRET_KEY, JWT_SECRET_KEY
+
+databases:
+  - name: flowintent-postgres
+    databaseName: workflow_db
+    user: workflow_user
+    plan: free
+    region: oregon
+
+  - name: flowintent-redis
+    plan: free
+    region: oregon
